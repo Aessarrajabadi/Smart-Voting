@@ -117,4 +117,25 @@ Check out the live application: **[Live Demo Link Placeholder]**
 - **[Your Name]** - Lead Developer
 
 ---
+
+## 🛠️ Technical Implementation & Updates
+
+### 🔧 Backend Optimization
+- **High-Performance Logic**: Implemented $O(N)$ set-intersection algorithms for the Fake News Detector, ensuring sub-millisecond local processing.
+- **LRU Caching**: Integrated `functools.lru_cache` to minimize compute time for repetitive AI queries.
+- **Security Hardening**: Integrated `Flask-Talisman` for CSP headers and `Flask-Limiter` for robust rate-limiting protection.
+- **Validation Layer**: Added a dedicated `utils.py` for comprehensive input sanitization and validation.
+
+### ⚛️ Frontend Excellence
+- **Managed API States**: Created the `useCachedPost` hook to centralize API calls, handle loading/error states, and implement frontend response caching.
+- **Accessibility (A11y)**: Added a **High Contrast Mode** toggle in the Navbar and implemented semantic ARIA roles across all components.
+- **Animation Framework**: Standardized `framer-motion` implementations with `AnimatePresence` for smooth layout transitions.
+- **Responsive Navigation**: Enhanced the Navbar with glassmorphism styling and mobile-optimized layouts.
+
+### ☁️ Cloud & Infrastructure
+- **Cloud Run Deployment**: Fully automated deployment to Google Cloud Run under project `my-project-92003-495217`.
+- **Backend Service**: Live at `https://smart-vote-backend-512811859438.us-central1.run.app`.
+- **Environment Management**: Transitioned to an environment-variable-based configuration for Firebase and API services.
+
+---
 *Built with ❤️ for the Hack2Skill Hackathon.*
