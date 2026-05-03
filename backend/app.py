@@ -4,7 +4,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_talisman import Talisman
 
-from utils import validate_eligibility_input
+from utils import validate_eligibility_input, validate_string_input
 from services import get_eligibility_status, get_chat_response, detect_fake_news
 
 import os
@@ -13,8 +13,30 @@ app = Flask(__name__, static_folder='static', static_url_path='')
 
 # Security & CORS
 CORS(app)
-# Use Talisman for secure headers. CSP is disabled to avoid issues with local dev environments.
-Talisman(app, content_security_policy=None, force_https=False)
+
+# Use Talisman for secure headers. 
+# Basic CSP to allow local dev and common assets.
+csp = {
+    'default-src': '\'self\'',
+    'script-src': [
+        '\'self\'',
+        '\'unsafe-inline\'',
+        'https://apis.google.com',
+        'https://www.gstatic.com'
+    ],
+    'style-src': [
+        '\'self\'',
+        '\'unsafe-inline\'',
+        'https://fonts.googleapis.com'
+    ],
+    'font-src': [
+        '\'self\'',
+        'https://fonts.gstatic.com'
+    ],
+    'img-src': ['\'self\'', 'data:', 'https://*.googleusercontent.com']
+}
+
+Talisman(app, content_security_policy=csp, force_https=False)
 
 # Rate Limiting
 limiter = Limiter(
@@ -40,20 +62,28 @@ def check_eligibility():
 @limiter.limit("20 per minute")
 def chat():
     data = request.get_json()
-    if not data or 'message' not in data:
-        return jsonify({"error": "No message provided"}), 400
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+        
+    message, error = validate_string_input(data, 'message', max_length=500)
+    if error:
+        return jsonify({"error": error}), 400
     
-    response = get_chat_response(data['message'])
+    response = get_chat_response(message)
     return jsonify({"reply": response})
 
 @app.route('/fake-news', methods=['POST'])
 @limiter.limit("10 per minute")
 def fake_news():
     data = request.get_json()
-    if not data or 'text' not in data:
-        return jsonify({"error": "No text provided"}), 400
+    if not data:
+        return jsonify({"error": "No data provided"}), 400
+        
+    text, error = validate_string_input(data, 'text', max_length=2000)
+    if error:
+        return jsonify({"error": error}), 400
     
-    result = detect_fake_news(data['text'])
+    result = detect_fake_news(text)
     return jsonify(result)
 
 @app.route('/')

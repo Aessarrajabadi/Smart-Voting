@@ -1,14 +1,27 @@
 import re
 
-def sanitize_input(text):
+def sanitize_input(text, max_length=5000):
     """
-    Basic sanitization to remove HTML tags and trim whitespace.
+    Sanitizes input by removing HTML tags, trimming whitespace, and enforcing max length.
     """
     if not isinstance(text, str):
         return ""
-    # Remove HTML tags
+    # Remove HTML tags using a more robust regex or just basic escaping
     clean_text = re.sub(r'<[^>]*>', '', text)
-    return clean_text.strip()
+    # Basic protection against common injection patterns
+    clean_text = clean_text.replace("'", "''") 
+    return clean_text.strip()[:max_length]
+
+def validate_string_input(data, key, max_length=5000, required=True):
+    """
+    Validates that a key exists in data and is a valid sanitized string.
+    """
+    val = data.get(key)
+    if required and (val is None or str(val).strip() == ""):
+        return None, f"{key.capitalize()} is required"
+    
+    sanitized = sanitize_input(val, max_length)
+    return sanitized, None
 
 def validate_eligibility_input(data):
     """
